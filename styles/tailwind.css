@@ -1,0 +1,100 @@
+@import url("https://use.typekit.net/smw0jtc.css");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  background: #050216;
+  font-family: greycliff-cf, sans-serif;
+}
+
+.container {
+  padding: 0 32px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.words-loose {
+  word-spacing: 2px;
+}
+
+.header {
+  left: 0;
+  right: 0;
+  z-index: 20;
+  position: sticky;
+  margin-bottom: 24px;
+}
+
+.nav {
+  gap: 8px;
+  padding: 4px;
+  display: flex;
+  height: 48px;
+  overflow: hidden;
+  border-radius: 25px;
+  align-items: center;
+  background: #201c2f;
+}
+
+.nav-link {
+  height: 100%;
+  line-height: 1;
+  font-size: 16px;
+  padding: 0 12px;
+  position: relative;
+  border-radius: 20px;
+  align-items: center;
+  display: inline-flex;
+}
+
+.nav-link-label {
+  z-index: 1;
+  position: relative;
+}
+
+.nav-link-active {
+  inset: 0;
+  z-index: 0;
+  position: absolute;
+  background: #6f6a80;
+  border-radius: 20px;
+  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.2);
+}
+
+.post {
+  color: white;
+  padding: 24px;
+  height: 400px;
+  flex-shrink: 0;
+  background: #1c172c;
+  border-radius: 20px;
+  position: relative;
+}
+
+.post::before {
+  inset: -8px;
+  content: "";
+  border-radius: 24px;
+  border: 2px solid white;
+  position: absolute;
+  opacity: 0;
+  transform: scale(0.98);
+  transition: all 300ms;
+}
+
+.post:hover::before {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.social-link {
+  width: 48px;
+  height: 48px;
+  color: white;
+  display: grid;
+  place-items: center;
+  border-radius: 30px;
+  border: 1px solid rgb(255 255 255 / 0.2);
+}

@@ -1,0 +1,260 @@
+---
+title: Build a react-router clone from scratch
+slug: "react-router"
+date: "2021-03-09"
+---
+
+React router is a package that I use in almost all of my projects. Not too long
+ago, Michael Jackson
+[tweeted this](https://twitter.com/mjackson/status/1223684745755684864). This
+made me curious as to how difficult it would be to rebuild react router from
+scratch.
+
+Before we dig into this I want to clarify that if you need a router in your
+project you should just use react router. It has a lot more features, handles a
+lot more edge cases and is incredibly well tested. This is purely a learning
+exercise.
+
+In this post we are going to build a simplified version of react-router that is
+based on the
+[newer v6 API's](https://reacttraining.com/blog/react-router-v6-pre/).
+
+At the heart of react router is another package called 'history'. This package
+is responsible for managing the router history. For this post we are only
+concerned about creating a router for the web and so we are going to bake this
+directly into our react components. The first thing we are going to need is a
+root `Router` component and a context for our other components to consume. Let's
+start with the context.
+
+Our router is going to be much more simplified than react router in that we
+aren't going to provide support for location state, hashes and other cases that
+react router provides. Our router context is going to provide 2 keys; location
+and push:
+
+- location is simply a string of the current path.
+- push is a function which can be called to change the current path.
+
+And with that we can create our basic router context.
+
+```jsx
+const RouterContext = React.createContext({
+  location: "",
+  push: () => {},
+});
+```
+
+This context is useless without rendering a provider. We are going to do that
+inside of our main `Router` component. The responsibility of this component is
+to provide information about the current route and provide ways to manipulate
+it. We are going to store the current location path in react state. This way
+when we update the location our component will re-render. We also need to
+provide the `push` function to our context which will simply update the browser
+location and update our location state. Finally we also listen for the window
+'popstate' event to update our location when using the browser navigation
+buttons.
+
+```jsx
+function Router({ children }) {
+  const [location, setLocation] = React.useState(window.location.pathname);
+
+  const handlePush = useCallback((newLocation) => {
+    window.history.pushState({}, "", newLocation);
+    setLocation(newLocation);
+  }, []);
+
+  const handleHashChange = useCallback(() => {
+    setLocation(window.location.pathname);
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener("popstate", handleHashChange);
+    return () => window.removeEventListener("popstate", handleHashChange);
+  }, [handleHashChange]);
+
+  const value = useMemo(() => {
+    return { location, push: handlePush };
+  }, [location, handlePush]);
+
+  return (
+    <RouterContext.Provider value={value}>{children}</RouterContext.Provider>
+  );
+}
+```
+
+In order to test our component we are going to need a way to update the current
+route to check the correct components are rendering. Let's create a `Link`
+component for this. Our link component will simply take a `to` argument of the
+new path and call our `push` function from the router context when clicked.
+
+```jsx
+function Link({ to, children }) {
+  const { push } = React.useContext(RouterContext);
+
+  function handleClick(e) {
+    e.preventDefault();
+    push(to);
+  }
+
+  return (
+    <a href={to} onClick={handleClick}>
+      {children}
+    </a>
+  );
+}
+```
+
+Now that we have a way to navigate around, we need a way to actually render some
+routes! Let's create a `Routes` and `Route` component to handle this. Let's
+start with the `Route` component because all it needs to do is simply render the
+children we give it.
+
+```jsx
+function Route({ children }) {
+  return children;
+}
+```
+
+Next we need our `Routes` component. Here we need to iterate through the route
+components and find one that matches the current location. We will also want to
+render the matched route inside of a route context, so that our route children
+can access any params that matched in the path. Let's start by creating the
+functions we need to match the routes. The first thing we need is a function
+that takes the path prop on a route and converts it into a regex that we can use
+to match against the current location.
+
+```jsx
+function compilePath(path) {
+  const keys = [];
+
+  path = path.replace(/:(\w+)/g, (_, key) => {
+    keys.push(key);
+    return "([^\\/]+)";
+  });
+
+  const source = `^(${path})`;
+
+  const regex = new RegExp(source, "i");
+  return { regex, keys };
+}
+```
+
+This will also give us an array of any keys that represet any params in the path
+pattern.
+
+```js
+compilePath("/posts/:id");
+// => { regex: /^(/posts/([^\/]+))/i, keys: ["id"] }
+```
+
+Next up we need a new function that will iterate through each child route and
+use the `compilePath` function to test if it matches the current location, while
+also extracing any matching params.
+
+```jsx
+function matchRoutes(children, location) {
+  const matches = [];
+
+  React.Children.forEach(children, (route) => {
+    const { regex, keys } = compilePath(route.props.path);
+    const match = location.match(regex);
+
+    if (match) {
+      const params = match.slice(2);
+      matches.push({
+        route: route.props.children,
+        params: keys.reduce((collection, param, index) => {
+          collection[param] = params[index];
+          return collection;
+        }, {}),
+      });
+    }
+  });
+
+  return matches[0];
+}
+```
+
+Finally we can create a new `RouteContext` and put together our Routes
+component. We'll pass the provided children into the `matchRoutes` function to
+find a matching route and render it inside of a provider for the route context.
+
+```jsx
+const RouteContext = React.createContext({
+  params: {},
+});
+
+function Routes({ children }) {
+  const { location } = useContext(RouterContext);
+  const match = useMemo(() => matchRoutes(children, location), [
+    children,
+    location,
+  ]);
+
+  const value = useMemo(() => {
+    return { params: match.params };
+  }, [match]);
+
+  // if no routes matched then render null
+  if (!match) return null;
+
+  return (
+    <RouteContext.Provider value={value}>{match.route}</RouteContext.Provider>
+  );
+}
+```
+
+At this point we actually have a functioning router, however, we are missing a
+small but crucial piece. Every good router needs a way to extract parameters
+from the URL. Thanks to our `RouteContext` we can easily create a `useParams`
+hook that our routes can use to extract this.
+
+```jsx
+function useParams() {
+  return useContext(RouteContext).params;
+}
+```
+
+And with all of that we have our own basic working version of react router!
+
+```jsx
+function Products() {
+  return (
+    <>
+      <h4>Example Products</h4>
+      <ul>
+        <li>
+          <Link to="/products/1">Product One</Link>
+        </li>
+        <li>
+          <Link to="/products/2">Product Two</Link>
+        </li>
+      </ul>
+    </>
+  );
+}
+
+function Product() {
+  const { id } = useParams();
+  return (
+    <>
+      <h4>Viewing product {id}</h4>
+      <Link to="/">Back to all products</Link>
+    </>
+  );
+}
+
+function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/products/:id">
+          <Product />
+        </Route>
+        <Route path="/">
+          <Products />
+        </Route>
+      </Routes>
+    </Router>
+  );
+}
+```
