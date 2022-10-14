@@ -94,7 +94,44 @@ body {
   height: 48px;
   color: white;
   display: grid;
+  position: relative;
   place-items: center;
   border-radius: 30px;
   border: 1px solid rgb(255 255 255 / 0.2);
+}
+
+.social-link::after {
+  inset: -5px;
+  content: "";
+  border-radius: 50%;
+  position: absolute;
+  border: 2px solid white;
+  transform: scale(0.95);
+  opacity: 0;
+  transition: all 300ms;
+}
+
+.social-link:hover::after {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.contact-button {
+  position: relative;
+}
+
+.contact-button::after {
+  content: "";
+  inset: -5px;
+  position: absolute;
+  border-radius: 40px;
+  border: 2px solid white;
+  transform: scale(0.95);
+  opacity: 0;
+  transition: all 300ms;
+}
+
+.contact-button:hover::after {
+  opacity: 1;
+  transform: scale(1);
 }
