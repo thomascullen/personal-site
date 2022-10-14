@@ -58,40 +58,58 @@ export default function Index() {
               </ExternalLink>
               .
             </motion.p>
-            <ContactButton className="mb-14">Say Hello</ContactButton>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.7 }}
+            >
+              <ContactButton className="mb-14">Say Hello</ContactButton>
+            </motion.div>
             <div className="flex gap-3">
-              <a
+              <motion.a
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0 }}
                 target="_blank"
                 rel="noreferrer"
                 className="social-link"
                 href="https://twitter.com/thomasauros"
               >
                 <Twitter size={24} />
-              </a>
-              <a
+              </motion.a>
+              <motion.a
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.1 }}
                 target="_blank"
                 rel="noreferrer"
                 className="social-link"
                 href="https://github.com/thomascullen"
               >
                 <Github size={24} />
-              </a>
-              <a
+              </motion.a>
+              <motion.a
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.2 }}
                 target="_blank"
                 rel="noreferrer"
                 className="social-link"
                 href="https://dribbble.com/thomascullen"
               >
                 <Dribbble size={24} />
-              </a>
-              <a
+              </motion.a>
+              <motion.a
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.3 }}
                 target="_blank"
                 rel="noreferrer"
                 className="social-link"
                 href="https://www.instagram.com/thomascullen"
               >
                 <InstagramAlt size={24} />
-              </a>
+              </motion.a>
             </div>
           </div>
         </div>
