@@ -21,7 +21,7 @@ export default function Index() {
               initial={{ y: 12, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.7 }}
-              className="font-serif text-3xl md:text-[42px] md:leading-[52px] text-white tracking-tight font-[600] mb-10 words-loose"
+              className="text-3xl md:text-[42px] md:leading-[52px] text-white tracking-tight font-[700] mb-10"
             >
               Thomas is a designer and developer who is currently writing about
               himself in the third person.
@@ -32,16 +32,7 @@ export default function Index() {
               transition={{ duration: 0.7, delay: 0 }}
               className="text-white font-serif font-[500] text-xl md:text-2xl text-white leading-relaxed md:leading-relaxed mb-16"
             >
-              I've spent the last 4 years at{" "}
-              <ExternalLink href="https://advisable.com">
-                Advisable
-              </ExternalLink>{" "}
-              building a network of top freelancers. Unfortunately that journey
-              has{" "}
-              <ExternalLink href="https://www.schlupfloch.xyz/explaining-advisables-failure/">
-                ended
-              </ExternalLink>{" "}
-              and I am looking for new opportunities.
+              I'm currently working as a Design Engineer at <ExternalLink href="https://evervault.com">Evervault.</ExternalLink>
               <br />
               <br />
               You can see my latest projects{" "}

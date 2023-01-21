@@ -1,7 +1,7 @@
 export default function ContactButton({ children, className = "" }) {
   return (
     <a
-      className={`contact-button bg-white px-8 py-4 rounded-full text-lg inline-flex font-[500] items-center gap-3 ${className}`}
+      className={`contact-button bg-white px-8 py-4 rounded-full text-lg inline-flex font-serif font-[700] items-center gap-3 ${className}`}
       href="mailto://hello@thomascullen.io"
     >
       <svg
